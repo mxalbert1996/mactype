@@ -265,6 +265,7 @@ private:
 	float m_fGammaValueForDW;
 	float m_fRenderWeight;
 	float m_fContrast;
+	float m_fGrayscaleEnhancedContrastDW;
 	int  m_nMaxHeight;
 	int  m_nMinHeight;
 	int  m_nBitmapHeight;
@@ -359,6 +360,7 @@ private:
 		, m_fGammaValueForDW(0.0f)
 		, m_fRenderWeight(1.0f)
 		, m_fContrast(1.0f)
+		, m_fGrayscaleEnhancedContrastDW(1.0f)
 		, m_nMaxHeight(0)
 		, m_nMinHeight(0)
 		, m_nBitmapHeight(0)
@@ -408,6 +410,7 @@ public:
 	float GammaValueForDW() const {	return m_fGammaValueForDW;	}
 	float RenderWeight() const { return m_fRenderWeight; }
 	float Contrast() const { return m_fContrast; }
+	float GrayscaleEnhancedContrastDW() const { return m_fGrayscaleEnhancedContrastDW; }
 	int MaxHeight() const { return m_nMaxHeight; }
 	int MinHeight() const { return m_nMinHeight; }
 	int BitmapHeight() const { return m_nBitmapHeight; }
