@@ -82,9 +82,6 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="delayimp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
