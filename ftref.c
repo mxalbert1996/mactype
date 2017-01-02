@@ -1,4 +1,4 @@
-#include "ftref.h"
+﻿#include "ftref.h"
 
 #define InterlockedIncrementInt(x) InterlockedIncrement((volatile LONG *)&(x))
 #define InterlockedDecrementInt(x) InterlockedDecrement((volatile LONG *)&(x))

@@ -1,4 +1,4 @@
-;LIBRARY MacType.dll
+﻿;LIBRARY MacType.dll
 EXPORTS
 	GetMsgProc @1
 	DllGetVersion = GdippDllGetVersion @2

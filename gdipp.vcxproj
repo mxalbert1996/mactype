@@ -175,6 +175,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>freetype.lib;usp10.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -262,6 +263,7 @@
     <ClInclude Include="fteng.h" />
     <ClInclude Include="ftref.h" />
     <ClInclude Include="gdiPlusFlat2.h" />
+    <ClInclude Include="GdiPlusTypes2.h" />
     <ClInclude Include="hash_list.h" />
     <ClInclude Include="hooklist.h" />
     <ClInclude Include="ivs_otft.h" />
