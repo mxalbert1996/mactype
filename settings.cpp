@@ -394,15 +394,9 @@ SKIP:
 	m_bFontLink		= _GetFreeTypeProfileInt(_T("FontLink"), 0, lpszFile);
 
 	m_bIsInclude	= !!_GetFreeTypeProfileInt(_T("UseInclude"), false, lpszFile);
-<<<<<<< HEAD
 	m_nMaxHeight	= _GetFreeTypeProfileBoundInt(_T("MaxHeight"), 0, 0, 0xfff, lpszFile);	//æœ€é«˜åªèƒ½åˆ°65535ï¼Œcacheçš„é™åˆ¶ï¼Œè€Œä¸”å¤§å­—ä½“æ— å®žé™…ä»·å€¼
 	m_nMinHeight = _GetFreeTypeProfileBoundInt(_T("MinHeight"), 0, 0,
 				(m_nMaxHeight) ? m_nMaxHeight : 0xfff,  // shouldn't be greater than MaxHeight unless it is undefined
-=======
-	m_nMaxHeight	= _GetFreeTypeProfileBoundInt(_T("MaxHeight"), 0, 0, 0xfff, lpszFile);	//×î¸ßÖ»ÄÜµ½65535£¬cacheµÄÏÞÖÆ£¬¶øÇÒ´ó×ÖÌåÎÞÊµ¼Ê¼ÛÖµ
-	m_nMinHeight = _GetFreeTypeProfileBoundInt(_T("MinHeight"), 0, 0,
-				(m_nMaxHeight) ? m_nMaxHeight : 0xfff,  // shouldn't be greater than MaxHeight unless it is undefined
->>>>>>> 5bdd8a9... removed delayhlp
 				lpszFile);	//Minimum size of rendered font. DPI aware alternative.
 				//patched by krrr https://github.com/krrr/mactype/commit/146a213e2304208cb3c1a3e6fa941a386d908761
 	m_nBitmapHeight = _GetFreeTypeProfileBoundInt(_T("MaxBitmap"), 0, 0, 255, lpszFile);

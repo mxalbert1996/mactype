@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Ôªø#ifndef _GDIPP_EXE
 #include "settings.h"
 #include "override.h"
@@ -51,23 +50,23 @@ EXTERN_C HRESULT WINAPI GdippDllGetVersion(DLLVERSIONINFO* pdvi)
 
 	const VS_FIXEDFILEINFO* pvffi = (const VS_FIXEDFILEINFO*)(lpwPtr + 20);
 	if (pvffi->dwSignature != VS_FFI_SIGNATURE ||
-			pvffi->dwStrucVersion != VS_FFI_STRUCVERSION) {
+		pvffi->dwStrucVersion != VS_FFI_STRUCVERSION) {
 		return E_FAIL;
 	}
 
 	//8.0.2006.1027
 	// -> Major: 8, Minor: 2006, Build: 1027
-	pdvi->dwMajorVersion	= HIWORD(pvffi->dwFileVersionMS);
-	pdvi->dwMinorVersion	= LOWORD(pvffi->dwFileVersionMS) * 10 + HIWORD(pvffi->dwFileVersionLS);
-	pdvi->dwBuildNumber		= LOWORD(pvffi->dwFileVersionLS);
-	pdvi->dwPlatformID		= DLLVER_PLATFORM_NT;
+	pdvi->dwMajorVersion = HIWORD(pvffi->dwFileVersionMS);
+	pdvi->dwMinorVersion = LOWORD(pvffi->dwFileVersionMS) * 10 + HIWORD(pvffi->dwFileVersionLS);
+	pdvi->dwBuildNumber = LOWORD(pvffi->dwFileVersionLS);
+	pdvi->dwPlatformID = DLLVER_PLATFORM_NT;
 
 	if (pdvi->cbSize < sizeof(DLLVERSIONINFO2)) {
 		return S_OK;
 	}
 
 	DLLVERSIONINFO2* pdvi2 = (DLLVERSIONINFO2*)pdvi;
-	pdvi2->ullVersion		= MAKEDLLVERULL(pdvi->dwMajorVersion, pdvi->dwMinorVersion, pdvi->dwBuildNumber, 2);
+	pdvi2->ullVersion = MAKEDLLVERULL(pdvi->dwMajorVersion, pdvi->dwMinorVersion, pdvi->dwBuildNumber, 2);
 	return S_OK;
 }
 
@@ -118,8 +117,8 @@ HMODULE GetSelfModuleHandle()
 {
 	MEMORY_BASIC_INFORMATION mbi;
 
-	return ((::VirtualQuery(GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0) 
-		? (HMODULE) mbi.AllocationBase : NULL);
+	return ((::VirtualQuery(GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0)
+		? (HMODULE)mbi.AllocationBase : NULL);
 }
 
 EXTERN_C void WINAPI CreateControlCenter(IControlCenter** ret)
@@ -143,8 +142,8 @@ EXTERN_C void SafeUnload()
 		Sleep(0);
 	CCriticalSectionLock * lock = new CCriticalSectionLock;
 	BOOL last;
-	if (last=InterlockedExchange(&g_bHookEnabled, FALSE)) {
-		if (hook_term()!=NOERROR)
+	if (last = InterlockedExchange(&g_bHookEnabled, FALSE)) {
+		if (hook_term() != NOERROR)
 		{
 			InterlockedExchange(&g_bHookEnabled, last);
 			bInited = false;
@@ -156,12 +155,12 @@ EXTERN_C void SafeUnload()
 	while (CThreadCounter::Count())
 		Sleep(10);
 	Sleep(0);
-	do 
+	do
 	{
 		Sleep(10);
 	} while (CThreadCounter::Count());	//double check for xp
-		
-	bInited = false; 
+
+	bInited = false;
 	FreeLibraryAndExitThread(g_dllInstance, 0);
 }
 
@@ -199,15 +198,15 @@ FARPROC K32GetProcAddress(LPCSTR lpProcName)
 
 	PIMAGE_EXPORT_DIRECTORY pdir = (PIMAGE_EXPORT_DIRECTORY)(pBase + offs);
 	DWORD*	pFunc = (DWORD*)(pBase + pdir->AddressOfFunctions);
-	WORD*	pOrd  = (WORD*)(pBase + pdir->AddressOfNameOrdinals);
+	WORD*	pOrd = (WORD*)(pBase + pdir->AddressOfNameOrdinals);
 	DWORD*	pName = (DWORD*)(pBase + pdir->AddressOfNames);
 
-	for(DWORD i=0; i<pdir->NumberOfFunctions; i++) {
-		for(DWORD j=0; j<pdir->NumberOfNames; j++) {
-			if(pOrd[j] != i)
+	for (DWORD i = 0; i<pdir->NumberOfFunctions; i++) {
+		for (DWORD j = 0; j<pdir->NumberOfNames; j++) {
+			if (pOrd[j] != i)
 				continue;
 
-			if(strcmp((LPCSTR)pBase + pName[j], lpProcName) != 0)
+			if (strcmp((LPCSTR)pBase + pName[j], lpProcName) != 0)
 				continue;
 
 			return (FARPROC)(pBase + pFunc[i]);
@@ -235,7 +234,7 @@ FARPROC K32GetProcAddress(LPCSTR lpProcName)
 	CMemLoadDll MemDll;
 	MemDll.MemLoadLibrary(pMem, dwSize, false, false);
 	delete[] pMem;
-	return FARPROC((DWORD_PTR)MemDll.MemGetProcAddress(lpProcName)-MemDll.GetImageBase());	//ËøîÂõûÂÅèÁßªÂÄº
+	return FARPROC((DWORD_PTR)MemDll.MemGetProcAddress(lpProcName) - MemDll.GetImageBase());	//ËøîÂõûÂÅèÁßªÂÄº
 
 #endif
 }
@@ -277,33 +276,33 @@ public:
 		//„Å™„Åú„ÅãGetProcAddress„ÅßLoadLibraryW„ÅÆ„Ç¢„Éâ„É¨„Çπ„ÅåÊ≠£„Åó„ÅèÂèñ„Çå„Å™„ÅÑ„Åì„Å®„Åå„ÅÇ„Çã„ÅÆ„Åß
 		//kernel32„ÅÆ„Éò„ÉÉ„ÉÄ„Åã„ÇâËá™Ââç„ÅßÂèñÂæó„Åô„Çã
 		FARPROC pfn = K32GetProcAddress("LoadLibraryExW");
-		if(!pfn)
+		if (!pfn)
 			return false;
 
 		emit_db(0x60);		//pushad
 
-		/*
-			mov eax,fs:[0x30]
-			mov eax,[eax+0x0c]
-			mov esi,[eax+0x1c]
-			lodsd
-			move ax,[eax+$08]//Ëøô‰∏™Êó∂ÂÄôeax‰∏≠‰øùÂ≠òÁöÑÂ∞±ÊòØk32ÁöÑÂü∫ÂùÄ‰∫Ü
-			Âú®win7Ëé∑ÂæóÁöÑÊòØKernelBase.dllÁöÑÂú∞ÂùÄ
-		*/
-		emit_db(0x64); 
-		emit_db(0xA1); 
-		emit_db(0x30); 
-		emit_db(00); 
-		emit_db(00); 
-		emit_db(00); 
-		emit_db(0x8B); 
-		emit_db(0x40); 
-		emit_db(0x0C); 
-		emit_db(0x8B); 
-		emit_db(0x70); 
-		emit_db(0x1C); 
-		emit_db(0xAD); 
-		emit_db(0x8B); 
+							/*
+							mov eax,fs:[0x30]
+							mov eax,[eax+0x0c]
+							mov esi,[eax+0x1c]
+							lodsd
+							move ax,[eax+$08]//Ëøô‰∏™Êó∂ÂÄôeax‰∏≠‰øùÂ≠òÁöÑÂ∞±ÊòØk32ÁöÑÂü∫ÂùÄ‰∫Ü
+							Âú®win7Ëé∑ÂæóÁöÑÊòØKernelBase.dllÁöÑÂú∞ÂùÄ
+							*/
+		emit_db(0x64);
+		emit_db(0xA1);
+		emit_db(0x30);
+		emit_db(00);
+		emit_db(00);
+		emit_db(00);
+		emit_db(0x8B);
+		emit_db(0x40);
+		emit_db(0x0C);
+		emit_db(0x8B);
+		emit_db(0x70);
+		emit_db(0x1C);
+		emit_db(0xAD);
+		emit_db(0x8B);
 		emit_db(0x40);
 		emit_db(0x08);		//use assemble to fetch kernel base
 
@@ -322,7 +321,7 @@ public:
 		// gdi++.dll„ÅÆ„Éë„Çπ
 		bool bDll = !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
 		if (bDll && wcsstr(dllpath, L"64"))
-			wcscpy(wcsstr(dllpath, L"64"), wcsstr(dllpath, L"64")+2);
+			wcscpy(wcsstr(dllpath, L"64"), wcsstr(dllpath, L"64") + 2);
 		return bDll;
 	}
 	bool init32(LPDWORD remoteaddr, LONG orgEIP)	//32‰ΩçÁ®ãÂ∫èÂàùÂßãÂåñ
@@ -340,20 +339,20 @@ public:
 		//„Å™„Åú„ÅãGetProcAddress„ÅßLoadLibraryW„ÅÆ„Ç¢„Éâ„É¨„Çπ„ÅåÊ≠£„Åó„ÅèÂèñ„Çå„Å™„ÅÑ„Åì„Å®„Åå„ÅÇ„Çã„ÅÆ„Åß
 		//kernel32„ÅÆ„Éò„ÉÉ„ÉÄ„Åã„ÇâËá™Ââç„ÅßÂèñÂæó„Åô„Çã
 		FARPROC pfn = K32GetProcAddress("LoadLibraryW");
-		if(!pfn)
+		if (!pfn)
 			return false;
 
 		emit_db(0x60);		//pushad
 #if _DEBUG
-emit_dw(0xC033);	//xor eax, eax
-emit_db(0x50);		//push eax
-emit_db(0x50);		//push eax
-emit_db(0x68);		//push dllpath
-emit_dd((LONG)remoteaddr + offsetof(opcode_data, dllpath));
-emit_db(0x50);		//push eax
-emit_db(0xB8);		//mov eax, MessageBoxW
-emit_dd((LONG)MessageBoxW);
-emit_dw(0xD0FF);	//call eax
+		emit_dw(0xC033);	//xor eax, eax
+		emit_db(0x50);		//push eax
+		emit_db(0x50);		//push eax
+		emit_db(0x68);		//push dllpath
+		emit_dd((LONG)remoteaddr + offsetof(opcode_data, dllpath));
+		emit_db(0x50);		//push eax
+		emit_db(0xB8);		//mov eax, MessageBoxW
+		emit_dd((LONG)MessageBoxW);
+		emit_dw(0xD0FF);	//call eax
 #endif
 
 		emit_db(0x68);		//push dllpath
@@ -434,8 +433,8 @@ emit_dw(0xD0FF);	//call eax
 			wcscpy(wcsstr(dllpath, L".dll"), L"64.dll");
 		if (!bDll)
 			return false;
-		uniDllPath.Length = wcslen(dllpath)*sizeof(WCHAR);
-		uniDllPath.MaximumLength = uniDllPath.Length+2;
+		uniDllPath.Length = wcslen(dllpath) * sizeof(WCHAR);
+		uniDllPath.MaximumLength = uniDllPath.Length + 2;
 		uniDllPath.Buffer = remoteaddr + (DWORD64)offsetof(opcode_data, dllpath);	//prepare PUNICODE_STRING for remote process
 		register BYTE* p = code;
 
@@ -445,19 +444,19 @@ emit_dw(0xD0FF);	//call eax
 #define emit_dd(d)	emit_(DWORD, d)
 #define emit_ddp(dp) emit_(DWORD64, dp)
 
-//get ntdll.dll imagebase
-//credit to http://www.52pojie.cn/thread-162625-1-1.html
-/*asm:
-	mov rsi, [gs:60h]   ;     peb from teb
-	mov rsi, [rsi+18h]    ;_peb_ldr_data from peb
-	mov rsi, [rsi+30h]   ;InInitializationOrderModuleList.Flink, ntdll.dll
-	;mov rsi, [rsi]  ;kernelbase.dll
-	;mov rsi, [rsi]      ;kernel32.dll (not used for win7+)
-	mov rsi, [rsi+10h]
-*/
+		//get ntdll.dll imagebase
+		//credit to http://www.52pojie.cn/thread-162625-1-1.html
+		/*asm:
+		mov rsi, [gs:60h]   ;     peb from teb
+		mov rsi, [rsi+18h]    ;_peb_ldr_data from peb
+		mov rsi, [rsi+30h]   ;InInitializationOrderModuleList.Flink, ntdll.dll
+		;mov rsi, [rsi]  ;kernelbase.dll
+		;mov rsi, [rsi]      ;kernel32.dll (not used for win7+)
+		mov rsi, [rsi+10h]
+		*/
 
-// emit_db(0xEB);
-// emit_db(0xFE);	// make a dead loop
+		// emit_db(0xEB);
+		// emit_db(0xFE);	// make a dead loop
 		emit_db(0x65);
 		emit_db(0x48);
 		emit_db(0x8B);
@@ -475,14 +474,14 @@ emit_dw(0xD0FF);	//call eax
 		emit_db(0x8B);
 		emit_db(0x76);
 		emit_db(0x30);
-// 		emit_db(0x48);
-// 		emit_db(0x8B);
-// 		emit_db(0x36);
+		// 		emit_db(0x48);
+		// 		emit_db(0x8B);
+		// 		emit_db(0x36);
 		emit_db(0x48);
 		emit_db(0x8B);
 		emit_db(0x76);
 		emit_db(0x10);
-//rsi = ntdll.dll baseaddress
+		//rsi = ntdll.dll baseaddress
 
 		emit_db(0x50);		//push rax
 		emit_db(0x51);		//push rcx
@@ -495,14 +494,14 @@ emit_dw(0xD0FF);	//call eax
 		emit_db(0x48);
 		emit_db(0x31);
 		emit_db(0xd2);	//xor rdx, rdx
-		emit_db(0x49);		
+		emit_db(0x49);
 		emit_db(0xB8);
 		emit_ddp((DWORD64)remoteaddr + offsetof(opcode_data, uniDllPath));//mov r8, uniDllPath
 		emit_db(0x49);
 		emit_db(0xB9);
 		emit_ddp((DWORD64)remoteaddr + offsetof(opcode_data, hDumyDllHandle));//mov r9, hDumyDllHandle
-		//emit_db(0x48);		//mov rsi, LdrLoadDll
-		//emit_db(0xBE);
+																			  //emit_db(0x48);		//mov rsi, LdrLoadDll
+																			  //emit_db(0xBE);
 		emit_db(0x48);
 		emit_db(0x81);
 		emit_db(0xC6);	//add rsi, offset LdrLoadDll
@@ -554,7 +553,7 @@ emit_dw(0xD0FF);	//call eax
 		emit_db(0x51);		//push rcx
 		emit_db(0x52);		//push rdx
 		emit_db(0x53);		//push rbx
-		
+
 #ifdef DEBUG
 		emit_dd(0x28ec8348);
 		emit_db(0x48);
@@ -580,8 +579,8 @@ emit_dw(0xD0FF);	//call eax
 		emit_db(0xD6);
 		emit_dd(0x28c48348);
 #endif
-/*	
-//Debug function2, Sleep for 10sec.
+		/*
+		//Debug function2, Sleep for 10sec.
 		emit_dd(0x28ec8348);
 		emit_db(0x48);		//mov rsi, MessageBoxW
 		emit_db(0xBE);
@@ -590,24 +589,24 @@ emit_dw(0xD0FF);	//call eax
 		emit_db(0xFF);
 		emit_db(0xD6);
 		emit_dd(0x28c48348);
-*/
+		*/
 		emit_dd(0x28ec8348);	//sub rsp,28h
 		emit_db(0x48);		//mov rcx, dllpath
 		emit_db(0xB9);
 		emit_ddp((DWORD_PTR)remoteaddr + offsetof(opcode_data, dllpath));
 		emit_db(0x48);		//mov rsi, LoadLibraryW
-		emit_db(0xBE);		
+		emit_db(0xBE);
 		emit_ddp(pfn);
 		//emit_db(0x48);
 		emit_db(0xFF);	//call rdi
 		emit_db(0xD6);
 
 		emit_dd(0x28c48348);	//add rsp,28h
-		emit_db(0x5B);	
-		emit_db(0x5A);	
-		emit_db(0x59);	
+		emit_db(0x5B);
+		emit_db(0x5A);
+		emit_db(0x59);
 		emit_db(0x58);		//popad		
-		
+
 		emit_db(0x48);		//mov rdi, orgRip
 		emit_db(0xBE);
 		emit_ddp(orgEIP);
@@ -654,7 +653,7 @@ int GetSystemBits()
 static bool bIsOS64 = GetSystemBits() == 64;	// check if running in a x64 system.
 
 #ifdef _M_IX86
-// Ê≠¢„ÇÅ„Å¶„ÅÑ„Çã„Éó„É≠„Çª„Çπ„Å´LoadLibrary„Åô„Çã„Ç≥„Éº„Éâ„ÇíÊ≥®ÂÖ•
+												// Ê≠¢„ÇÅ„Å¶„ÅÑ„Çã„Éó„É≠„Çª„Çπ„Å´LoadLibrary„Åô„Çã„Ç≥„Éº„Éâ„ÇíÊ≥®ÂÖ•
 EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
 {
 	BOOL bIsX64Proc = false;
@@ -687,7 +686,7 @@ EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
 		if (!remote)
 			return false;
 		bool basmIniter = dwLoaderOffset ? local.init64From32(remote, ctx.Rip, dwLoaderOffset) : local.init64From32(remote, ctx.Rip);
-		if (!basmIniter	|| !WriteProcessMemory64(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
+		if (!basmIniter || !WriteProcessMemory64(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
 			VirtualFreeEx64(ppi->hProcess, remote, 0, MEM_RELEASE);
 			return false;
 		}
@@ -730,18 +729,18 @@ EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
 		WOW64_CONTEXT ctx = { 0 };
 		ctx.ContextFlags = CONTEXT_CONTROL;
 		//CREATE_SUSPENDED„Å™„ÅÆ„ÅßÂü∫Êú¨ÁöÑ„Å´ÊàêÂäü„Åô„Çã„ÅØ„Åö
-		if(!Wow64GetThreadContext(ppi->hThread, &ctx))
+		if (!Wow64GetThreadContext(ppi->hThread, &ctx))
 			return false;
 
 		opcode_data local;
 		LPVOID remote = VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		if(!remote)
+		if (!remote)
 			return false;
 
-		if(!local.initWow64((LPDWORD)remote, ctx.Eip)
+		if (!local.initWow64((LPDWORD)remote, ctx.Eip)
 			|| !WriteProcessMemory(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
-				VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
-				return false;
+			VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
+			return false;
 		}
 
 		FlushInstructionCache(ppi->hProcess, remote, sizeof(opcode_data));
@@ -755,1012 +754,21 @@ EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
 		CONTEXT ctx = { 0 };
 		ctx.ContextFlags = CONTEXT_CONTROL;
 		//CREATE_SUSPENDED„Å™„ÅÆ„ÅßÂü∫Êú¨ÁöÑ„Å´ÊàêÂäü„Åô„Çã„ÅØ„Åö
-		if(!GetThreadContext(ppi->hThread, &ctx))
-			return false;
-
-		opcode_data local;
-		LPVOID remote = VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		if(!remote)
-			return false;
-
-		if(!local.init((DWORD_PTR*)remote, ctx.Rip)
-			|| !WriteProcessMemory(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
-				VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
-				return false;
-		}
-
-		FlushInstructionCache(ppi->hProcess, remote, sizeof(opcode_data));
-		//FARPROC a=(FARPROC)remote;
-		//a();
-		ctx.Rip = (DWORD_PTR)remote;
-		return !!SetThreadContext(ppi->hThread, &ctx);
-	}
-}
-
-#endif
-
-template <typename _TCHAR>
-int strlendb(const _TCHAR* psz)
-{
-	const _TCHAR* p = psz;
-	while (*p) {
-		for (; *p; p++);
-		p++;
-	}
-	return p - psz + 1;
-}
-
-template <typename _TCHAR>
-_TCHAR* strdupdb(const _TCHAR* psz, int pad)
-{
-	int len = strlendb(psz);
-	_TCHAR* p = (_TCHAR*)calloc(sizeof(_TCHAR), len + pad);
-	if(p) {
-		memcpy(p, psz, sizeof(_TCHAR) * len);
-	}
-	return p;
-}
-
-
-
-bool MultiSzToArray(LPWSTR p, CArray<LPWSTR>& arr)
-{
-	for (; *p; ) {
-		LPWSTR cp = _wcsdup(p);
-		if(!cp || !arr.Add(cp)) {
-			free(cp);
-			return false;
-		}
-		for (; *p; p++);
-		p++;
-	}
-	return true;
-}
-
-LPWSTR ArrayToMultiSz(CArray<LPWSTR>& arr)
-{
-	size_t cch = 1;
-	for (int i=0; i<arr.GetSize(); i++) {
-		cch += wcslen(arr[i]) + 1;
-	}
-
-	LPWSTR pmsz = (LPWSTR)calloc(sizeof(WCHAR), cch);
-	if (!pmsz)
-		return NULL;
-
-	LPWSTR p = pmsz;
-	for (int i=0; i<arr.GetSize(); i++) {
-		StringCchCopyExW(p, cch, arr[i], &p, &cch, STRSAFE_NO_TRUNCATION);
-		p++;
-	}
-	*p = 0;
-	return pmsz;
-}
-
-bool AddPathEnv(CArray<LPWSTR>& arr, LPWSTR dir, int dirlen)
-{
-	for (int i=0; i<arr.GetSize(); i++) {
-		LPWSTR env = arr[i];
-		if (_wcsnicmp(env, L"PATH=", 5)) {
-			continue;
-		}
-
-		LPWSTR p = env + 5;
-		LPWSTR pp = p;
-		for (; ;) {
-			for (; *p && *p != L';'; p++);
-			int len = p - pp;
-			if (len == dirlen && !_wcsnicmp(pp, dir, dirlen)) {
-				return false;
-			}
-			if (!*p)
-				break;
-			pp = p + 1;
-			p++;
-		}
-
-		size_t cch = wcslen(env) + MAX_PATH + 4;
-		env = (LPWSTR)realloc(env, sizeof(WCHAR) * cch);
-		if(env) {
-			StringCchCatW(env, cch, L";");
-			StringCchCatW(env, cch, dir);
-			arr[i] = env;
-			return true;
-		}
-		return false;
-	}
-
-	size_t cch = dirlen + sizeof("PATH=") + 1;
-	LPWSTR p = (LPWSTR)calloc(sizeof(WCHAR), cch);
-	if(p) {
-		StringCchCopyW(p, cch, L"PATH=");
-		StringCchCatW(p, cch, dir);
-		if (arr.Add(p)) {
-			return true;
-		}
-		free(p);
-	}
-	return false;
-}
-
-bool AddX64Env(CArray<LPWSTR>& arr)
-{
-	FARPROC k32 = GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
-	WCHAR szAddr[20] = { 0 };
-	_ui64tow((DWORD64)k32, szAddr, 10);
-	//wsprintf(szAddr, L"%Ld", (DWORD_PTR)k32);
-	size_t cch = wcslen(szAddr) + sizeof("MACTYPE_X64ADDR=") + 1;
-	LPWSTR p = (LPWSTR)calloc(sizeof(WCHAR), cch);
-	if (p) {
-		StringCchCopyW(p, cch, L"MACTYPE_X64ADDR=");
-		StringCchCatW(p, cch, szAddr);
-		if (arr.Add(p)) {
-			return true;
-		}
-		free(p);
-	}
-	return false;
-}
-
-EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnvironment)
-{
-#ifndef _WIN64
-	return NULL;
-#endif
-
-	TCHAR dir[MAX_PATH];
-	int dirlen = GetModuleFileName(GetDLLInstance(), dir, MAX_PATH);
-	LPTSTR lpfilename=dir+dirlen;
-	while (lpfilename>dir && *lpfilename!=_T('\\') && *lpfilename!=_T('/')) --lpfilename;
-	*lpfilename = 0;
-	dirlen = wcslen(dir);
-
-	LPWSTR pEnvW = NULL;
-	if (lpEnvironment) {
-		if (dwCreationFlags & CREATE_UNICODE_ENVIRONMENT) {
-			pEnvW = strdupdb((LPCWSTR)lpEnvironment, MAX_PATH + 1);
-		} else {
-			int alen = strlendb((LPCSTR)lpEnvironment);
-			int wlen = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpEnvironment, alen, NULL, 0) + 1;
-			pEnvW = (LPWSTR)calloc(sizeof(WCHAR), wlen + MAX_PATH + 1);
-			if (pEnvW) {
-				MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpEnvironment, alen, pEnvW, wlen);
-			}
-		}
-	} else {
-		LPWSTR block = (LPWSTR)GetEnvironmentStringsW();
-		if (block) {
-			pEnvW = strdupdb(block, MAX_PATH + 1);
-			FreeEnvironmentStrings(block);
-		}
-	}
-
-	if (!pEnvW) {
-		return NULL;
-	}
-
-	CArray<LPWSTR> envs;
-	bool ret = MultiSzToArray(pEnvW, envs);
-	free(pEnvW);
-	pEnvW = NULL;
-	
-	/*if (ret) {
-		ret = AddPathEnv(envs, dir, dirlen);
-	}*/
-#ifdef _WIN64
-	{
-		GetEnvironmentVariableW(L"MACTYPE_X64ADDR", NULL, 0);
-		if (GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
-			ret = AddX64Env(envs);
-		}
-	}
-#endif
-	if (ret) {
-		pEnvW = ArrayToMultiSz(envs);
-	}
-
-	for (int i=0; i<envs.GetSize(); free(envs[i++]));
-
-	if (!pEnvW) {
-		return NULL;
-	}
-
-#ifdef _DEBUG
-	{
-		LPWSTR tmp = strdupdb(pEnvW, 0);
-		LPWSTR tmpe = tmp + strlendb(tmp);
-		PathRemoveFileSpec(dir);
-		for (LPWSTR z=tmp; z<tmpe; z++)if(!*z)*z=L'\n';
-			StringCchCatW(dir,MAX_PATH,L"\\");
-			StringCchCatW(dir,MAX_PATH,L"gdienv.txt");
-			HANDLE hf = CreateFileW(dir,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,0,NULL);
-			if(hf) {
-			DWORD cb;
-			WORD w = 0xfeff;
-			WriteFile(hf,&w, sizeof(WORD), &cb, 0);
-			WriteFile(hf,tmp, sizeof(WCHAR) * (tmpe - tmp), &cb, 0);
-			SetEndOfFile(hf);
-			CloseHandle(hf);
-			free(tmp);
-		}
-	}
-#endif
-
-	dwCreationFlags |= CREATE_UNICODE_ENVIRONMENT;
-	return pEnvW;
-}
-=======
-#ifndef _GDIPP_EXE
-#include "settings.h"
-#include "override.h"
-#include <tlhelp32.h>
-#include <shlwapi.h>	//DLLVERSIONINFO
-#include "undocAPI.h"
-#include <windows.h>
-#include <dwrite_1.h>
-#include <dwrite_2.h>
-#include <dwrite_3.h>
-#include "wow64ext.h"
-#include <VersionHelpers.h>
-
-// win2kà»ç~
-//#pragma comment(linker, "/subsystem:windows,5.0")
-#ifndef _WIN64
-#pragma comment(lib, "wow64ext.lib")
-#endif
-
-EXTERN_C LRESULT CALLBACK GetMsgProc(int code, WPARAM wParam, LPARAM lParam)
-{
-	//âΩÇ‡ÇµÇ»Ç¢
-	return CallNextHookEx(NULL, code, wParam, lParam);
-}
-
-EXTERN_C HRESULT WINAPI GdippDllGetVersion(DLLVERSIONINFO* pdvi)
-{
-	if (!pdvi || pdvi->cbSize < sizeof(DLLVERSIONINFO)) {
-		return E_INVALIDARG;
-	}
-
-	const UINT cbSize = pdvi->cbSize;
-	ZeroMemory(pdvi, cbSize);
-	pdvi->cbSize = cbSize;
-
-	HRSRC hRsrc = FindResource(GetDLLInstance(), MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-	if (!hRsrc) {
-		return E_FAIL;
-	}
-
-	HGLOBAL hGlobal = LoadResource(GetDLLInstance(), hRsrc);
-	if (!hGlobal) {
-		return E_FAIL;
-	}
-
-	const WORD* lpwPtr = (const WORD*)LockResource(hGlobal);
-	if (lpwPtr[1] != sizeof(VS_FIXEDFILEINFO)) {
-		return E_FAIL;
-	}
-
-	const VS_FIXEDFILEINFO* pvffi = (const VS_FIXEDFILEINFO*)(lpwPtr + 20);
-	if (pvffi->dwSignature != VS_FFI_SIGNATURE ||
-			pvffi->dwStrucVersion != VS_FFI_STRUCVERSION) {
-		return E_FAIL;
-	}
-
-	//8.0.2006.1027
-	// -> Major: 8, Minor: 2006, Build: 1027
-	pdvi->dwMajorVersion	= HIWORD(pvffi->dwFileVersionMS);
-	pdvi->dwMinorVersion	= LOWORD(pvffi->dwFileVersionMS) * 10 + HIWORD(pvffi->dwFileVersionLS);
-	pdvi->dwBuildNumber		= LOWORD(pvffi->dwFileVersionLS);
-	pdvi->dwPlatformID		= DLLVER_PLATFORM_NT;
-
-	if (pdvi->cbSize < sizeof(DLLVERSIONINFO2)) {
-		return S_OK;
-	}
-
-	DLLVERSIONINFO2* pdvi2 = (DLLVERSIONINFO2*)pdvi;
-	pdvi2->ullVersion		= MAKEDLLVERULL(pdvi->dwMajorVersion, pdvi->dwMinorVersion, pdvi->dwBuildNumber, 2);
-	return S_OK;
-}
-
-#endif	//!_GDIPP_EXE
-
-extern LONG interlock;
-extern LONG g_bHookEnabled;
-#include "gdiPlusFlat2.h"
-
-#ifdef USE_DETOURS
-#include "detours.h"
-#define HOOK_DEFINE(rettype, name, argtype) \
-	DetourDetach(&(PVOID&)ORIG_##name, IMPL_##name);
-static LONG hook_term()
-{
-	DetourTransactionBegin();
-
-	DetourUpdateThread(GetCurrentThread());
-
-#include "hooklist.h"
-
-	LONG error = DetourTransactionCommit();
-
-	if (error != NOERROR) {
-		TRACE(_T("hook_term error: %#x\n"), error);
-	}
-	return error;
-}
-#undef HOOK_DEFINE
-#else
-#include "easyhook.h"
-#define HOOK_MANUALLY(rettype, name, argtype) ;
-#define HOOK_DEFINE(rettype, name, argtype) \
-	ORIG_##name = name;
-#pragma optimize("s", on)
-static LONG hook_term()
-{
-#include "hooklist.h"
-	LhUninstallAllHooks();
-	return LhWaitForPendingRemovals();
-}
-#pragma optimize("", on)
-#undef HOOK_DEFINE
-#undef HOOK_MANUALLY
-#endif
-
-HMODULE GetSelfModuleHandle()
-{
-	MEMORY_BASIC_INFORMATION mbi;
-
-	return ((::VirtualQuery(GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0) 
-		? (HMODULE) mbi.AllocationBase : NULL);
-}
-
-EXTERN_C void WINAPI CreateControlCenter(IControlCenter** ret)
-{
-	*ret = (IControlCenter*)new CControlCenter;
-}
-
-EXTERN_C void WINAPI ReloadConfig()
-{
-	CControlCenter::ReloadConfig();
-}
-
-extern HINSTANCE g_dllInstance;
-EXTERN_C void SafeUnload()
-{
-	static BOOL bInited = false;
-	if (bInited)
-		return;	//∑¿÷ÿ»Î
-	bInited = true;
-	while (CThreadCounter::Count())
-		Sleep(0);
-	CCriticalSectionLock * lock = new CCriticalSectionLock;
-	BOOL last;
-	if (last=InterlockedExchange(&g_bHookEnabled, FALSE)) {
-		if (hook_term()!=NOERROR)
-		{
-			InterlockedExchange(&g_bHookEnabled, last);
-			bInited = false;
-			delete lock;
-			ExitThread(ERROR_ACCESS_DENIED);
-		}
-	}
-	delete lock;
-	while (CThreadCounter::Count())
-		Sleep(10);
-	Sleep(0);
-	do 
-	{
-		Sleep(10);
-	} while (CThreadCounter::Count());	//double check for xp
-		
-	bInited = false; 
-	FreeLibraryAndExitThread(g_dllInstance, 0);
-}
-
-#ifndef Assert
-#include <crtdbg.h>
-#define Assert	_ASSERTE
-#endif	//!Assert
-
-#include "array.h"
-#include <strsafe.h>
-#include <shlwapi.h>
-#include "dll.h"
-
-//kernel32êÍópGetProcAddressÉÇÉhÉL
-FARPROC K32GetProcAddress(LPCSTR lpProcName)
-{
-#ifndef _WIN64
-	//èòêîìnÇµÇ…ÇÕëŒâûÇµÇ»Ç¢
-	Assert(!IS_INTRESOURCE(lpProcName));
-
-	//kernel32ÇÃÉxÅ[ÉXÉAÉhÉåÉXéÊìæ
-	LPBYTE pBase = (LPBYTE)GetModuleHandleA("kernel32.dll");
-
-	//Ç±ÇÃï”ÇÕ100%ê¨å˜Ç∑ÇÈÇÕÇ∏Ç»ÇÃÇ≈ÉGÉâÅ[É`ÉFÉbÉNÇµÇ»Ç¢
-	PIMAGE_DOS_HEADER pdosh = (PIMAGE_DOS_HEADER)pBase;
-	Assert(pdosh->e_magic == IMAGE_DOS_SIGNATURE);
-	PIMAGE_NT_HEADERS pnth = (PIMAGE_NT_HEADERS)(pBase + pdosh->e_lfanew);
-	Assert(pnth->Signature == IMAGE_NT_SIGNATURE);
-
-	const DWORD offs = pnth->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-	const DWORD size = pnth->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
-	if (offs == 0 || size == 0) {
-		return NULL;
-	}
-
-	PIMAGE_EXPORT_DIRECTORY pdir = (PIMAGE_EXPORT_DIRECTORY)(pBase + offs);
-	DWORD*	pFunc = (DWORD*)(pBase + pdir->AddressOfFunctions);
-	WORD*	pOrd  = (WORD*)(pBase + pdir->AddressOfNameOrdinals);
-	DWORD*	pName = (DWORD*)(pBase + pdir->AddressOfNames);
-
-	for(DWORD i=0; i<pdir->NumberOfFunctions; i++) {
-		for(DWORD j=0; j<pdir->NumberOfNames; j++) {
-			if(pOrd[j] != i)
-				continue;
-
-			if(strcmp((LPCSTR)pBase + pName[j], lpProcName) != 0)
-				continue;
-
-			return (FARPROC)(pBase + pFunc[i]);
-		}
-	}
-	return NULL;
-#else
-	Assert(!IS_INTRESOURCE(lpProcName));
-
-	//kernel32ÇÃÉxÅ[ÉXÉAÉhÉåÉXéÊìæ
-	WCHAR sysdir[MAX_PATH];
-	GetWindowsDirectory(sysdir, MAX_PATH);
-	if (GetModuleHandle(_T("kernelbase.dll")))	//≤Èø¥◊‘º∫ «∑Òº”‘ÿ¡ÀKernelbase.dllŒƒº˛£¨¥Ê‘⁄‘ÚÀµ√˜ «win7œµÕ≥
-		wcscat(sysdir, L"\\SysWow64\\kernelbase.dll");
-	else
-		wcscat(sysdir, L"\\SysWow64\\kernel32.dll");	//≤ª¥Ê‘⁄æÕ «vista
-	HANDLE hFile = CreateFile(sysdir, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return NULL;
-	DWORD dwSize = GetFileSize(hFile, NULL);
-	BYTE* pMem = new BYTE[dwSize];	//∑÷≈‰ƒ⁄¥Ê
-	ReadFile(hFile, pMem, dwSize, &dwSize, NULL);//∂¡»°Œƒº˛
-	CloseHandle(hFile);
-
-	CMemLoadDll MemDll;
-	MemDll.MemLoadLibrary(pMem, dwSize, false, false);
-	delete[] pMem;
-	return FARPROC((DWORD_PTR)MemDll.MemGetProcAddress(lpProcName)-MemDll.GetImageBase());	//∑µªÿ∆´“∆÷µ
-
-#endif
-}
-
-typedef struct _UNICODE_STRING64 {
-	USHORT Length;
-	USHORT MaximumLength;
-	DWORD64  Buffer;
-} UNICODE_STRING64, *PUNICODE_STRING64;
-
-#include <pshpack1.h>
-class opcode_data {
-private:
-	BYTE	code[0x100];
-
-	//íç: dllpathÇWORDã´äEÇ…ÇµÇ»Ç¢Ç∆èÍçáÇ…ÇÊÇ¡ÇƒÇÕê≥èÌÇ…ìÆçÏÇµÇ»Ç¢
-	WCHAR	dllpath[MAX_PATH];
-	UNICODE_STRING64 uniDllPath;
-	DWORD64 hDumyDllHandle;
-
-public:
-	opcode_data()
-	{
-		//int 03hÇ≈ñÑÇﬂÇÈ
-		FillMemory(this, sizeof(*this), 0xcc);
-	}
-	bool initWow64(LPDWORD remoteaddr, LONG orgEIP)	//Wow64≥ı ºªØ
-	{
-		//WORDã´äEÉ`ÉFÉbÉN
-		C_ASSERT((offsetof(opcode_data, dllpath) & 1) == 0);
-
-		register BYTE* p = code;
-
-#define emit_(t,x)	*(t* UNALIGNED)p = (t)(x); p += sizeof(t)
-#define emit_db(b)	emit_(BYTE, b)
-#define emit_dw(w)	emit_(WORD, w)
-#define emit_dd(d)	emit_(DWORD, d)
-
-		//Ç»Ç∫Ç©GetProcAddressÇ≈LoadLibraryWÇÃÉAÉhÉåÉXÇ™ê≥ÇµÇ≠éÊÇÍÇ»Ç¢Ç±Ç∆Ç™Ç†ÇÈÇÃÇ≈
-		//kernel32ÇÃÉwÉbÉ_Ç©ÇÁé©ëOÇ≈éÊìæÇ∑ÇÈ
-		FARPROC pfn = K32GetProcAddress("LoadLibraryExW");
-		if(!pfn)
-			return false;
-
-		emit_db(0x60);		//pushad
-
-		/*
-			mov eax,fs:[0x30]
-			mov eax,[eax+0x0c]
-			mov esi,[eax+0x1c]
-			lodsd
-			move ax,[eax+$08]//’‚∏ˆ ±∫Úeax÷–±£¥ÊµƒæÕ «k32µƒª˘÷∑¡À
-			‘⁄win7ªÒµ√µƒ «KernelBase.dllµƒµÿ÷∑
-		*/
-		emit_db(0x64); 
-		emit_db(0xA1); 
-		emit_db(0x30); 
-		emit_db(00); 
-		emit_db(00); 
-		emit_db(00); 
-		emit_db(0x8B); 
-		emit_db(0x40); 
-		emit_db(0x0C); 
-		emit_db(0x8B); 
-		emit_db(0x70); 
-		emit_db(0x1C); 
-		emit_db(0xAD); 
-		emit_db(0x8B); 
-		emit_db(0x40);
-		emit_db(0x08);		//use assemble to fetch kernel base
-
-		emit_dw(0x006A);	//push 0
-		emit_dw(0x006A);	//push 0
-		emit_db(0x68);		//push dllpath
-		emit_dd((LONG)remoteaddr + offsetof(opcode_data, dllpath));
-		emit_db(0x05);		//add eax, LoadLibraryExW offset
-		emit_dd(pfn);
-		emit_dw(0xD0FF);	//call eax
-
-		emit_db(0x61);		//popad
-		emit_db(0xE9);		//jmp original_EIP
-		emit_dd(orgEIP - (LONG)remoteaddr - (p - code) - sizeof(LONG));
-
-		// gdi++.dllÇÃÉpÉX
-		bool bDll = !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
-		if (bDll && wcsstr(dllpath, L"64"))
-			wcscpy(wcsstr(dllpath, L"64"), wcsstr(dllpath, L"64")+2);
-		return bDll;
-	}
-	bool init32(LPDWORD remoteaddr, LONG orgEIP)	//32Œª≥Ã–Ú≥ı ºªØ
-	{
-		//WORDã´äEÉ`ÉFÉbÉN
-		C_ASSERT((offsetof(opcode_data, dllpath) & 1) == 0);
-
-		register BYTE* p = code;
-
-#define emit_(t,x)	*(t* UNALIGNED)p = (t)(x); p += sizeof(t)
-#define emit_db(b)	emit_(BYTE, b)
-#define emit_dw(w)	emit_(WORD, w)
-#define emit_dd(d)	emit_(DWORD, d)
-
-		//Ç»Ç∫Ç©GetProcAddressÇ≈LoadLibraryWÇÃÉAÉhÉåÉXÇ™ê≥ÇµÇ≠éÊÇÍÇ»Ç¢Ç±Ç∆Ç™Ç†ÇÈÇÃÇ≈
-		//kernel32ÇÃÉwÉbÉ_Ç©ÇÁé©ëOÇ≈éÊìæÇ∑ÇÈ
-		FARPROC pfn = K32GetProcAddress("LoadLibraryW");
-		if(!pfn)
-			return false;
-
-		emit_db(0x60);		//pushad
-#if _DEBUG
-emit_dw(0xC033);	//xor eax, eax
-emit_db(0x50);		//push eax
-emit_db(0x50);		//push eax
-emit_db(0x68);		//push dllpath
-emit_dd((LONG)remoteaddr + offsetof(opcode_data, dllpath));
-emit_db(0x50);		//push eax
-emit_db(0xB8);		//mov eax, MessageBoxW
-emit_dd((LONG)MessageBoxW);
-emit_dw(0xD0FF);	//call eax
-#endif
-
-		emit_db(0x68);		//push dllpath
-		emit_dd((LONG)remoteaddr + offsetof(opcode_data, dllpath));
-		emit_db(0xB8);		//mov eax, LoadLibraryW
-		emit_dd(pfn);
-		emit_dw(0xD0FF);	//call eax
-
-		emit_db(0x61);		//popad
-		emit_db(0xE9);		//jmp original_EIP
-		emit_dd(orgEIP - (LONG)remoteaddr - (p - code) - sizeof(LONG));
-
-		// gdi++.dllÇÃÉpÉX
-		return !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
-	}
-	bool init64From32(DWORD64 remoteaddr, DWORD64 orgEIP)
-	{
-		C_ASSERT((offsetof(opcode_data, dllpath) & 1) == 0);
-
-		register BYTE* p = code;
-
-#define emit_(t,x)	*(t* UNALIGNED)p = (t)(x); p += sizeof(t)
-#define emit_db(b)	emit_(BYTE, b)
-#define emit_dw(w)	emit_(WORD, w)
-#define emit_dd(d)	emit_(DWORD, d)
-#define emit_ddp(dp) emit_(DWORD64, dp)
-
-		//Ç»Ç∫Ç©GetProcAddressÇ≈LoadLibraryWÇÃÉAÉhÉåÉXÇ™ê≥ÇµÇ≠éÊÇÍÇ»Ç¢Ç±Ç∆Ç™Ç†ÇÈÇÃÇ≈
-		//kernel32ÇÃÉwÉbÉ_Ç©ÇÁé©ëOÇ≈éÊìæÇ∑ÇÈ
-		WCHAR x64Addr[30] = { 0 };
-		if (!GetEnvironmentVariable(L"MACTYPE_X64ADDR", x64Addr, 29)) return false;
-		DWORD64 pfn = wcstoull(x64Addr, NULL, 10);
-		//DWORD64 pfn = getenv("MACTYPE_X64ADDR"); //GetProcAddress64(GetModuleHandle64(L"kernelbase.dll"), "LoadLibraryW");
-		if (!pfn)
-			return false;
-
-		emit_db(0x50);		//push rax
-		emit_db(0x51);		//push rcx
-		emit_db(0x52);		//push rdx
-		emit_db(0x53);		//push rbx
-		emit_dd(0x28ec8348);	//sub rsp,28h
-		emit_db(0x48);		//mov rcx, dllpath
-		emit_db(0xB9);
-		emit_ddp((DWORD64)remoteaddr + offsetof(opcode_data, dllpath));
-		emit_db(0x48);		//mov rsi, LoadLibraryW
-		emit_db(0xBE);
-		emit_ddp(pfn);
-		//emit_db(0x48);
-		emit_db(0xFF);	//call rdi
-		emit_db(0xD6);
-
-		emit_dd(0x28c48348);	//add rsp,28h
-		emit_db(0x5B);
-		emit_db(0x5A);
-		emit_db(0x59);
-		emit_db(0x58);		//popad		
-
-		emit_db(0x48);		//mov rdi, orgRip
-		emit_db(0xBE);
-		emit_ddp(orgEIP);
-		emit_db(0xFF);		//jmp rdi
-		emit_db(0xE6);
-
-		// gdi++.dllÇÃÉpÉX
-
-		bool bDll = !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
-		if (bDll && wcsstr(dllpath, L".dll"))
-			wcscpy(wcsstr(dllpath, L".dll"), L"64.dll");
-		return bDll;
-	}
-
-	bool init64From32(DWORD64 remoteaddr, DWORD64 orgEIP, DWORD dwLoaderOffset)
-	{
-		C_ASSERT((offsetof(opcode_data, dllpath) & 1) == 0);
-
-		bool bDll = !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
-		if (bDll && wcsstr(dllpath, L".dll"))
-			wcscpy(wcsstr(dllpath, L".dll"), L"64.dll");
-		if (!bDll)
-			return false;
-		uniDllPath.Length = wcslen(dllpath)*sizeof(WCHAR);
-		uniDllPath.MaximumLength = uniDllPath.Length+2;
-		uniDllPath.Buffer = remoteaddr + (DWORD64)offsetof(opcode_data, dllpath);	//prepare PUNICODE_STRING for remote process
-		register BYTE* p = code;
-
-#define emit_(t,x)	*(t* UNALIGNED)p = (t)(x); p += sizeof(t)
-#define emit_db(b)	emit_(BYTE, b)
-#define emit_dw(w)	emit_(WORD, w)
-#define emit_dd(d)	emit_(DWORD, d)
-#define emit_ddp(dp) emit_(DWORD64, dp)
-
-//get ntdll.dll imagebase
-//credit to http://www.52pojie.cn/thread-162625-1-1.html
-/*asm:
-	mov rsi, [gs:60h]   ;     peb from teb
-	mov rsi, [rsi+18h]    ;_peb_ldr_data from peb
-	mov rsi, [rsi+30h]   ;InInitializationOrderModuleList.Flink, ntdll.dll
-	;mov rsi, [rsi]  ;kernelbase.dll
-	;mov rsi, [rsi]      ;kernel32.dll (not used for win7+)
-	mov rsi, [rsi+10h]
-*/
-
-// emit_db(0xEB);
-// emit_db(0xFE);	// make a dead loop
-		emit_db(0x65);
-		emit_db(0x48);
-		emit_db(0x8B);
-		emit_db(0x34);
-		emit_db(0x25);
-		emit_db(0x60);
-		emit_db(0x00);
-		emit_db(0x00);
-		emit_db(0x00);
-		emit_db(0x48);
-		emit_db(0x8B);
-		emit_db(0x76);
-		emit_db(0x18);
-		emit_db(0x48);
-		emit_db(0x8B);
-		emit_db(0x76);
-		emit_db(0x30);
-// 		emit_db(0x48);
-// 		emit_db(0x8B);
-// 		emit_db(0x36);
-		emit_db(0x48);
-		emit_db(0x8B);
-		emit_db(0x76);
-		emit_db(0x10);
-//rsi = ntdll.dll baseaddress
-
-		emit_db(0x50);		//push rax
-		emit_db(0x51);		//push rcx
-		emit_db(0x52);		//push rdx
-		emit_db(0x53);		//push rbx
-		emit_dd(0x28ec8348);	//sub rsp,28h
-		emit_db(0x48);
-		emit_db(0x31);
-		emit_db(0xc9);	//xor rcx, rcx
-		emit_db(0x48);
-		emit_db(0x31);
-		emit_db(0xd2);	//xor rdx, rdx
-		emit_db(0x49);		
-		emit_db(0xB8);
-		emit_ddp((DWORD64)remoteaddr + offsetof(opcode_data, uniDllPath));//mov r8, uniDllPath
-		emit_db(0x49);
-		emit_db(0xB9);
-		emit_ddp((DWORD64)remoteaddr + offsetof(opcode_data, hDumyDllHandle));//mov r9, hDumyDllHandle
-		//emit_db(0x48);		//mov rsi, LdrLoadDll
-		//emit_db(0xBE);
-		emit_db(0x48);
-		emit_db(0x81);
-		emit_db(0xC6);	//add rsi, offset LdrLoadDll
-		emit_dd(dwLoaderOffset);
-		//emit_db(0x48);
-		emit_db(0xFF);	//call rsi
-		emit_db(0xD6);
-
-		emit_dd(0x28c48348);	//add rsp,28h
-		emit_db(0x5B);
-		emit_db(0x5A);
-		emit_db(0x59);
-		emit_db(0x58);		//popad		
-
-		emit_db(0x48);		//mov rdi, orgRip
-		emit_db(0xBE);
-		emit_ddp(orgEIP);
-		emit_db(0xFF);		//jmp rdi
-		emit_db(0xE6);
-
-		// gdi++.dllÇÃÉpÉX
-
-		return bDll;
-	}
-
-	bool init(DWORD_PTR* remoteaddr, DWORD_PTR orgEIP)
-	{
-		//WORDã´äEÉ`ÉFÉbÉN
-		C_ASSERT((offsetof(opcode_data, dllpath) & 1) == 0);
-
-		register BYTE* p = code;
-#undef emit_ddp
-
-#define emit_(t,x)	*(t* UNALIGNED)p = (t)(x); p += sizeof(t)
-#define emit_db(b)	emit_(BYTE, b)
-#define emit_dw(w)	emit_(WORD, w)
-#define emit_dd(d)	emit_(DWORD, d)
-#define emit_ddp(dp) emit_(DWORD_PTR, dp)
-
-		//Ç»Ç∫Ç©GetProcAddressÇ≈LoadLibraryWÇÃÉAÉhÉåÉXÇ™ê≥ÇµÇ≠éÊÇÍÇ»Ç¢Ç±Ç∆Ç™Ç†ÇÈÇÃÇ≈
-		//kernel32ÇÃÉwÉbÉ_Ç©ÇÁé©ëOÇ≈éÊìæÇ∑ÇÈ
-		FARPROC pfn = GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
-		//if(!pfn)
-		//	return false;
-		//emit_db(0xEB);
-		//emit_db(0xFE);	// make a dead loop
-
-		emit_db(0x50);		//push rax
-		emit_db(0x51);		//push rcx
-		emit_db(0x52);		//push rdx
-		emit_db(0x53);		//push rbx
-		
-#ifdef DEBUG
-		emit_dd(0x28ec8348);
-		emit_db(0x48);
-		emit_db(0x31);
-		emit_db(0xD0);	//xor rax,rax
-		emit_db(0x48);
-		emit_db(0x31);
-		emit_db(0xC9);	//xor rcx,rcx
-		emit_db(0x48);
-		emit_db(0x31);
-		emit_db(0xD2);	//xor rdx,rdx
-		emit_db(0x45);
-		emit_db(0x31);
-		emit_db(0xC0);	//xor r8d,r8d
-		emit_db(0x45);
-		emit_db(0x31);
-		emit_db(0xC9);	//xor r9d,r9d
-
-		emit_db(0x48);		//mov rsi, MessageBoxW
-		emit_db(0xBE);
-		emit_ddp((DWORD_PTR)MessageBoxW);
-		emit_db(0xFF);
-		emit_db(0xD6);
-		emit_dd(0x28c48348);
-#endif
-/*	
-//Debug function2, Sleep for 10sec.
-		emit_dd(0x28ec8348);
-		emit_db(0x48);		//mov rsi, MessageBoxW
-		emit_db(0xBE);
-		emit_ddp((DWORD_PTR)Sleep);
-		emit_db(0x48); emit_db(0xc7); emit_db(0xc1); emit_db(0x10); emit_db(0x27); emit_db(0x00); emit_db(0x00);
-		emit_db(0xFF);
-		emit_db(0xD6);
-		emit_dd(0x28c48348);
-*/
-		emit_dd(0x28ec8348);	//sub rsp,28h
-		emit_db(0x48);		//mov rcx, dllpath
-		emit_db(0xB9);
-		emit_ddp((DWORD_PTR)remoteaddr + offsetof(opcode_data, dllpath));
-		emit_db(0x48);		//mov rsi, LoadLibraryW
-		emit_db(0xBE);		
-		emit_ddp(pfn);
-		//emit_db(0x48);
-		emit_db(0xFF);	//call rdi
-		emit_db(0xD6);
-
-		emit_dd(0x28c48348);	//add rsp,28h
-		emit_db(0x5B);	
-		emit_db(0x5A);	
-		emit_db(0x59);	
-		emit_db(0x58);		//popad		
-		
-		emit_db(0x48);		//mov rdi, orgRip
-		emit_db(0xBE);
-		emit_ddp(orgEIP);
-		emit_db(0xFF);		//jmp rdi
-		emit_db(0xE6);
-
-		// gdi++.dllÇÃÉpÉX
-
-		return !!GetModuleFileNameW(GetDLLInstance(), dllpath, MAX_PATH);
-	}
-
-};
-#include <poppack.h>
-
-// ∞≤»´µƒ»°µ√’Ê µœµÕ≥–≈œ¢
-VOID SafeGetNativeSystemInfo(__out LPSYSTEM_INFO lpSystemInfo)
-{
-	if (NULL == lpSystemInfo)    return;
-	typedef VOID(WINAPI *LPFN_GetNativeSystemInfo)(LPSYSTEM_INFO lpSystemInfo);
-	LPFN_GetNativeSystemInfo fnGetNativeSystemInfo = (LPFN_GetNativeSystemInfo)GetProcAddress(GetModuleHandle(_T("kernel32")), "GetNativeSystemInfo");;
-	if (NULL != fnGetNativeSystemInfo)
-	{
-		fnGetNativeSystemInfo(lpSystemInfo);
-	}
-	else
-	{
-		GetSystemInfo(lpSystemInfo);
-	}
-}
-
-// ªÒ»°≤Ÿ◊˜œµÕ≥Œª ˝
-int GetSystemBits()
-{
-	SYSTEM_INFO si;
-	SafeGetNativeSystemInfo(&si);
-	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
-		si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-	{
-		return 64;
-	}
-	return 32;
-}
-
-static bool bIsOS64 = GetSystemBits() == 64;	// check if running in a x64 system.
-
-#ifdef _M_IX86
-// é~ÇﬂÇƒÇ¢ÇÈÉvÉçÉZÉXÇ…LoadLibraryÇ∑ÇÈÉRÅ[ÉhÇíçì¸
-EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
-{
-	BOOL bIsX64Proc = false;
-	if (bIsOS64 && IsWow64Process(ppi->hProcess, &bIsX64Proc) && !bIsX64Proc)
-	{
-		//x86 process launches a x64 process
-		_CONTEXT64 ctx = { 0 };
-		ctx.ContextFlags = CONTEXT_CONTROL;
-		if (!GetThreadContext64(ppi->hThread, &ctx))
-			return false;
-		static bool bTryLoadDll64 = false;
-		static DWORD dwLoaderOffset = 0;
-		if (!bTryLoadDll64) {
-			bTryLoadDll64 = true;
-			GetEnvironmentVariable(L"MACTYPE_X64ADDR", NULL, 0);
-			if (GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
-				DWORD64 hNtdll = 0;
-				hNtdll = GetModuleHandle64(L"ntdll.dll");
-				if (hNtdll) {
-					DWORD64 pfnLdrAddr = GetProcAddress64(hNtdll, "LdrLoadDll");
-					if (pfnLdrAddr) {
-						dwLoaderOffset = (DWORD)(pfnLdrAddr - hNtdll);
-					}
-				}
-			}
-		}
-
-		opcode_data local;
-		DWORD64 remote = VirtualAllocEx64(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		if (!remote)
-			return false;
-		bool basmIniter = dwLoaderOffset ? local.init64From32(remote, ctx.Rip, dwLoaderOffset) : local.init64From32(remote, ctx.Rip);
-		if (!basmIniter	|| !WriteProcessMemory64(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
-			VirtualFreeEx64(ppi->hProcess, remote, 0, MEM_RELEASE);
-			return false;
-		}
-
-		//FlushInstructionCache64(ppi->hProcess, remote, sizeof(opcode_data));
-		//FARPROC a=(FARPROC)remote;
-		//a();
-		ctx.Rip = (DWORD64)remote;
-		return !!SetThreadContext64(ppi->hThread, &ctx);
-	}
-	else {
-		CONTEXT ctx = { 0 };
-		ctx.ContextFlags = CONTEXT_CONTROL;
 		if (!GetThreadContext(ppi->hThread, &ctx))
 			return false;
 
 		opcode_data local;
-		opcode_data* remote = (opcode_data*)VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		LPVOID remote = VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (!remote)
 			return false;
 
-		if (!local.init32((LPDWORD)remote, ctx.Eip)
+		if (!local.init((DWORD_PTR*)remote, ctx.Rip)
 			|| !WriteProcessMemory(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
 			VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
 			return false;
 		}
 
 		FlushInstructionCache(ppi->hProcess, remote, sizeof(opcode_data));
-		ctx.Eip = (DWORD)remote;
-		return !!SetThreadContext(ppi->hThread, &ctx);
-	}
-}
-#else
-EXTERN_C BOOL WINAPI GdippInjectDLL(const PROCESS_INFORMATION* ppi)
-{
-	BOOL bWow64 = false;
-	IsWow64Process(ppi->hProcess, &bWow64);
-	if (bWow64)
-	{
-		WOW64_CONTEXT ctx = { 0 };
-		ctx.ContextFlags = CONTEXT_CONTROL;
-		//CREATE_SUSPENDEDÇ»ÇÃÇ≈äÓñ{ìIÇ…ê¨å˜Ç∑ÇÈÇÕÇ∏
-		if(!Wow64GetThreadContext(ppi->hThread, &ctx))
-			return false;
-
-		opcode_data local;
-		LPVOID remote = VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		if(!remote)
-			return false;
-
-		if(!local.initWow64((LPDWORD)remote, ctx.Eip)
-			|| !WriteProcessMemory(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
-				VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
-				return false;
-		}
-
-		FlushInstructionCache(ppi->hProcess, remote, sizeof(opcode_data));
-		//FARPROC a=(FARPROC)remote;
-		//a();
-		ctx.Eip = (DWORD)remote;
-		return !!Wow64SetThreadContext(ppi->hThread, &ctx);
-	}
-	else
-	{
-		CONTEXT ctx = { 0 };
-		ctx.ContextFlags = CONTEXT_CONTROL;
-		//CREATE_SUSPENDEDÇ»ÇÃÇ≈äÓñ{ìIÇ…ê¨å˜Ç∑ÇÈÇÕÇ∏
-		if(!GetThreadContext(ppi->hThread, &ctx))
-			return false;
-
-		opcode_data local;
-		LPVOID remote = VirtualAllocEx(ppi->hProcess, NULL, sizeof(opcode_data), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		if(!remote)
-			return false;
-
-		if(!local.init((DWORD_PTR*)remote, ctx.Rip)
-			|| !WriteProcessMemory(ppi->hProcess, remote, &local, sizeof(opcode_data), NULL)) {
-				VirtualFreeEx(ppi->hProcess, remote, 0, MEM_RELEASE);
-				return false;
-		}
-
-		FlushInstructionCache(ppi->hProcess, remote, sizeof(opcode_data));
 		//FARPROC a=(FARPROC)remote;
 		//a();
 		ctx.Rip = (DWORD_PTR)remote;
@@ -1786,7 +794,7 @@ _TCHAR* strdupdb(const _TCHAR* psz, int pad)
 {
 	int len = strlendb(psz);
 	_TCHAR* p = (_TCHAR*)calloc(sizeof(_TCHAR), len + pad);
-	if(p) {
+	if (p) {
 		memcpy(p, psz, sizeof(_TCHAR) * len);
 	}
 	return p;
@@ -1798,7 +806,7 @@ bool MultiSzToArray(LPWSTR p, CArray<LPWSTR>& arr)
 {
 	for (; *p; ) {
 		LPWSTR cp = _wcsdup(p);
-		if(!cp || !arr.Add(cp)) {
+		if (!cp || !arr.Add(cp)) {
 			free(cp);
 			return false;
 		}
@@ -1811,7 +819,7 @@ bool MultiSzToArray(LPWSTR p, CArray<LPWSTR>& arr)
 LPWSTR ArrayToMultiSz(CArray<LPWSTR>& arr)
 {
 	size_t cch = 1;
-	for (int i=0; i<arr.GetSize(); i++) {
+	for (int i = 0; i<arr.GetSize(); i++) {
 		cch += wcslen(arr[i]) + 1;
 	}
 
@@ -1820,7 +828,7 @@ LPWSTR ArrayToMultiSz(CArray<LPWSTR>& arr)
 		return NULL;
 
 	LPWSTR p = pmsz;
-	for (int i=0; i<arr.GetSize(); i++) {
+	for (int i = 0; i<arr.GetSize(); i++) {
 		StringCchCopyExW(p, cch, arr[i], &p, &cch, STRSAFE_NO_TRUNCATION);
 		p++;
 	}
@@ -1830,7 +838,7 @@ LPWSTR ArrayToMultiSz(CArray<LPWSTR>& arr)
 
 bool AddPathEnv(CArray<LPWSTR>& arr, LPWSTR dir, int dirlen)
 {
-	for (int i=0; i<arr.GetSize(); i++) {
+	for (int i = 0; i<arr.GetSize(); i++) {
 		LPWSTR env = arr[i];
 		if (_wcsnicmp(env, L"PATH=", 5)) {
 			continue;
@@ -1852,7 +860,7 @@ bool AddPathEnv(CArray<LPWSTR>& arr, LPWSTR dir, int dirlen)
 
 		size_t cch = wcslen(env) + MAX_PATH + 4;
 		env = (LPWSTR)realloc(env, sizeof(WCHAR) * cch);
-		if(env) {
+		if (env) {
 			StringCchCatW(env, cch, L";");
 			StringCchCatW(env, cch, dir);
 			arr[i] = env;
@@ -1863,7 +871,7 @@ bool AddPathEnv(CArray<LPWSTR>& arr, LPWSTR dir, int dirlen)
 
 	size_t cch = dirlen + sizeof("PATH=") + 1;
 	LPWSTR p = (LPWSTR)calloc(sizeof(WCHAR), cch);
-	if(p) {
+	if (p) {
 		StringCchCopyW(p, cch, L"PATH=");
 		StringCchCatW(p, cch, dir);
 		if (arr.Add(p)) {
@@ -1901,8 +909,8 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 
 	TCHAR dir[MAX_PATH];
 	int dirlen = GetModuleFileName(GetDLLInstance(), dir, MAX_PATH);
-	LPTSTR lpfilename=dir+dirlen;
-	while (lpfilename>dir && *lpfilename!=_T('\\') && *lpfilename!=_T('/')) --lpfilename;
+	LPTSTR lpfilename = dir + dirlen;
+	while (lpfilename>dir && *lpfilename != _T('\\') && *lpfilename != _T('/')) --lpfilename;
 	*lpfilename = 0;
 	dirlen = wcslen(dir);
 
@@ -1910,7 +918,8 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 	if (lpEnvironment) {
 		if (dwCreationFlags & CREATE_UNICODE_ENVIRONMENT) {
 			pEnvW = strdupdb((LPCWSTR)lpEnvironment, MAX_PATH + 1);
-		} else {
+		}
+		else {
 			int alen = strlendb((LPCSTR)lpEnvironment);
 			int wlen = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpEnvironment, alen, NULL, 0) + 1;
 			pEnvW = (LPWSTR)calloc(sizeof(WCHAR), wlen + MAX_PATH + 1);
@@ -1918,7 +927,8 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 				MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpEnvironment, alen, pEnvW, wlen);
 			}
 		}
-	} else {
+	}
+	else {
 		LPWSTR block = (LPWSTR)GetEnvironmentStringsW();
 		if (block) {
 			pEnvW = strdupdb(block, MAX_PATH + 1);
@@ -1934,9 +944,9 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 	bool ret = MultiSzToArray(pEnvW, envs);
 	free(pEnvW);
 	pEnvW = NULL;
-	
+
 	/*if (ret) {
-		ret = AddPathEnv(envs, dir, dirlen);
+	ret = AddPathEnv(envs, dir, dirlen);
 	}*/
 #ifdef _WIN64
 	{
@@ -1950,7 +960,7 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 		pEnvW = ArrayToMultiSz(envs);
 	}
 
-	for (int i=0; i<envs.GetSize(); free(envs[i++]));
+	for (int i = 0; i<envs.GetSize(); free(envs[i++]));
 
 	if (!pEnvW) {
 		return NULL;
@@ -1961,15 +971,15 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 		LPWSTR tmp = strdupdb(pEnvW, 0);
 		LPWSTR tmpe = tmp + strlendb(tmp);
 		PathRemoveFileSpec(dir);
-		for (LPWSTR z=tmp; z<tmpe; z++)if(!*z)*z=L'\n';
-			StringCchCatW(dir,MAX_PATH,L"\\");
-			StringCchCatW(dir,MAX_PATH,L"gdienv.txt");
-			HANDLE hf = CreateFileW(dir,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,0,NULL);
-			if(hf) {
+		for (LPWSTR z = tmp; z<tmpe; z++)if (!*z)*z = L'\n';
+		StringCchCatW(dir, MAX_PATH, L"\\");
+		StringCchCatW(dir, MAX_PATH, L"gdienv.txt");
+		HANDLE hf = CreateFileW(dir, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+		if (hf) {
 			DWORD cb;
 			WORD w = 0xfeff;
-			WriteFile(hf,&w, sizeof(WORD), &cb, 0);
-			WriteFile(hf,tmp, sizeof(WCHAR) * (tmpe - tmp), &cb, 0);
+			WriteFile(hf, &w, sizeof(WORD), &cb, 0);
+			WriteFile(hf, tmp, sizeof(WCHAR) * (tmpe - tmp), &cb, 0);
 			SetEndOfFile(hf);
 			CloseHandle(hf);
 			free(tmp);
@@ -1980,4 +990,3 @@ EXTERN_C LPWSTR WINAPI GdippEnvironment(DWORD& dwCreationFlags, LPVOID lpEnviron
 	dwCreationFlags |= CREATE_UNICODE_ENVIRONMENT;
 	return pEnvW;
 }
->>>>>>> 5bdd8a9... removed delayhlp
